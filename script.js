@@ -8,8 +8,8 @@ const maxCountLabel = document.getElementById("maxCountLabel");
 const angleLabel = document.getElementById("angleLabel");
 const countLabel = document.getElementById("countLabel");
 const randomButton = document.getElementById("submitRandom");
-const MAX_MAX_COUNT = 1000;
-const MAX_COUNT = 5;
+const MAX_COUNT = 1000;
+const MAX_COUNT_RATIO = 5;
 const MAX_ANGLE = 3;
 
 class Storage {
@@ -31,7 +31,7 @@ class Storage {
   }
 }
 
-const stor = new Storage();
+const store = new Storage();
 const getRandom = (sample) => {
   const randomPart = sample[Math.floor(Math.random() * sample.length)];
   return randomPart;
@@ -44,22 +44,15 @@ const getRandomColor = () => {
   }
   return color;
 };
-function labelRefresher(rangeLabel, rangeInput) {
-  const oldLabel = rangeLabel.innerText;
-  rangeLabel.innerText =
-    oldLabel.replace(/([0-9]+\.+[0-9])/g, "") + rangeInput.value;
-}
+
 const setDefaultRandom = (field, value) => {
-  if (!stor.inStore(field)) stor.set(field, value);
+  if (!store.inStore(field)) store.set(field, value);
 };
 
 setDefaultRandom("fillColor", getRandomColor());
 setDefaultRandom("strokeColor", getRandomColor());
-setDefaultRandom(
-  "maxCount",
-  Number((Math.random() * MAX_MAX_COUNT).toFixed(0)),
-);
-setDefaultRandom("count", Number((Math.random() * MAX_COUNT).toFixed(2)));
+setDefaultRandom("maxCount", Number((Math.random() * MAX_COUNT).toFixed(0)));
+setDefaultRandom("count", Number((Math.random() * MAX_COUNT_RATIO).toFixed(2)));
 setDefaultRandom("angle", Number((Math.random() * MAX_ANGLE).toFixed(2)));
 
 maxCountInput.oninput = () => {
@@ -67,18 +60,18 @@ maxCountInput.oninput = () => {
 };
 
 countInput.oninput = () => {
-  labelRefresher(countLabel, countInput);
+  countLabel.innerText = "Count Ratio: " + countInput.value;
 };
 
 angleInput.oninput = () => {
-  labelRefresher(angleLabel, angleInput);
+  angleLabel.innerText = "Angle Ratio: " + angleInput.value;
 };
 
-fillColorInput.value = stor.get("fillColor");
-strokeColorInput.value = stor.get("strokeColor");
-maxCountInput.value = Number(stor.get("maxCount"));
-angleInput.value = Number(stor.get("angle"));
-countInput.value = Number(stor.get("count"));
+fillColorInput.value = store.get("fillColor");
+strokeColorInput.value = store.get("strokeColor");
+maxCountInput.value = Number(store.get("maxCount"));
+angleInput.value = Number(store.get("angle"));
+countInput.value = Number(store.get("count"));
 
 maxCountLabel.innerText = "Max Count: " + maxCountInput.value;
 maxCountLabel.innerText = "Max Count: " + maxCountInput.value;
@@ -93,19 +86,19 @@ form.onsubmit = (e) => {
     count: countInput.value,
     angle: angleInput.value,
   };
-  stor.groupSet(data);
+  store.groupSet(data);
 };
 
 randomButton.onclick = (e) => {
   e.preventDefault();
   const randomObj = {
-    maxCount: Number((Math.random() * MAX_MAX_COUNT).toFixed(0)),
+    maxCount: Number((Math.random() * MAX_COUNT).toFixed(0)),
     fillColor: getRandomColor(),
     strokeColor: getRandomColor(),
-    count: Number((Math.random() * MAX_COUNT).toFixed(2)),
+    count: Number((Math.random() * MAX_COUNT_RATIO).toFixed(2)),
     angle: Number((Math.random() * MAX_ANGLE).toFixed(2)),
   };
-  stor.groupSet(randomObj);
+  store.groupSet(randomObj);
   location.reload();
 };
 
@@ -115,13 +108,13 @@ const ctx = canvas.getContext("2d");
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
-ctx.fillStyle = stor.get("fillColor");
-ctx.strokeStyle = stor.get("strokeColor");
+ctx.fillStyle = store.get("fillColor");
+ctx.strokeStyle = store.get("strokeColor");
 let count = 0;
 let scale = 10;
 
 function draw() {
-  let angle = count * Number(stor.get("angle"));
+  let angle = count * Number(store.get("angle"));
   let radius = scale * Math.sqrt(count);
   let positionX = radius * Math.sin(angle) + canvas.width / 2;
   let positionY = radius * Math.cos(angle) + canvas.height / 2;
@@ -131,11 +124,11 @@ function draw() {
   ctx.closePath();
   ctx.fill();
   ctx.stroke();
-  count += Number(stor.get("count"));
+  count += Number(store.get("count"));
 }
 
 function animate() {
-  if (count >= Number(stor.get("maxCount"))) return;
+  if (count >= Number(store.get("maxCount"))) return;
   draw();
   window.requestAnimationFrame(animate);
 }
