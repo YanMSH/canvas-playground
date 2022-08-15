@@ -1,6 +1,6 @@
 # canvas-playground
 
-Deploy [here](https://yanmsh.github.io/canvas-playground/)
+Deploy is [here](https://yanmsh.github.io/canvas-playground/)
 
 Little toy for making random spiral patterns with canvas. Automatically memorises last pattern.
 
